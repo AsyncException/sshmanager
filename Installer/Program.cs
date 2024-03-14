@@ -44,6 +44,15 @@ internal class Program {
             Console.ReadLine();
             Environment.Exit(0);
         }
+
+        try {
+            SetEnvironmentVariables();
+        }
+        catch (Exception ex) {
+            AnsiConsole.WriteException(ex, ExceptionFormats.ShortenEverything);
+            Console.ReadLine();
+            Environment.Exit(0);
+        }
     }
 
     private static void ShowPreChecks() => AnsiConsole.Status()
@@ -133,6 +142,17 @@ internal class Program {
                     Environment.Exit(0);
                 }
             });
+    }
+    private static void SetEnvironmentVariables() {
+        try { 
+            string value = Environment.GetEnvironmentVariable("Path");
+            Environment.SetEnvironmentVariable("Path", string.Concat(value, $";{INSTALLATION_DIRECTORY}"));
+            AnsiConsole.MarkupLine(":check_mark_button: [green]Environment Variables set.[/]");
+        }
+        catch (Exception ex) {
+            AnsiConsole.MarkupLine(":cross_mark: [red]Could not set the environment variables.[/]");
+            AnsiConsole.WriteException(ex, ExceptionFormats.ShortenEverything);
+        }
     }
 }
 
