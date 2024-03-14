@@ -10,7 +10,10 @@ public class DatabaseContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder options_builder) {
         base.OnConfiguring(options_builder);
-        string path = AppDomain.CurrentDomain.BaseDirectory;
+        string path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "sshmanager");
+        if (!Path.Exists(path)) {
+            Directory.CreateDirectory(path);
+        }
 
         options_builder.UseSqlite($"Data Source={Path.Combine(path, "Database.db")}");
     }
