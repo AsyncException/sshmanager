@@ -1,6 +1,7 @@
 ﻿using Installer.Github;
 using Installer.Github.Models;
 using Spectre.Console;
+using System.Diagnostics;
 using System.IO.Compression;
 using System.Security.Principal;
 using System.Text;

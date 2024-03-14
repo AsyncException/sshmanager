@@ -7,18 +7,19 @@ namespace Installer.Github;
 public class GithubAPI : IDisposable
 {
     private readonly HttpClient http_client = new() { BaseAddress = new Uri("https://api.github.com") };
+    public GithubAPI() { http_client.DefaultRequestHeaders.Add("User-Agent", "sshmanager_installer"); }
 
     public async Task<Release> GetLatestRelease()
     {
-        const string url = "/repos/AsyncException/sshmanager/releases/latest";
-        Release? release = await http_client.GetFromJsonAsync<Release>(url);
+        const string url = "https://api.github.com/repos/AsyncException/sshmanager/releases";
+        Release[]? releases = await http_client.GetFromJsonAsync<Release[]>(url);
 
-        if(release is null) {
+        if (releases is null) {
             AnsiConsole.WriteException(new Exception("Unable to get the latest release from github"), ExceptionFormats.ShortenEverything);
             Environment.Exit(0);
         }
 
-        return release;
+        return releases[0];
     }
 
     public static string GetUrl(Release release) {
