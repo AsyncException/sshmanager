@@ -1,7 +1,6 @@
 ﻿using Installer.Github;
 using Installer.Github.Models;
 using Spectre.Console;
-using System.Diagnostics;
 using System.IO.Compression;
 using System.Security.Principal;
 using System.Text;
@@ -13,7 +12,7 @@ internal class Program {
     private const string TEMP_FILE_NAME = "sshmanager.zip";
     private static readonly string temp_file_path = Path.Combine(Path.GetTempPath(), TEMP_FILE_NAME);
     private static readonly GithubAPI github_api = new();
-    static async Task Main(string[] args) {
+    static async Task Main() {
         Console.OutputEncoding = Encoding.UTF8;
         ShowPreChecks();
 
@@ -38,7 +37,7 @@ internal class Program {
         }
 
         try {
-            Unpack();
+            UnpackAndClean();
         }
         catch (Exception ex) {
             AnsiConsole.WriteException(ex, ExceptionFormats.ShortenEverything);
@@ -46,14 +45,9 @@ internal class Program {
             Environment.Exit(0);
         }
 
-        try {
-            SetEnvironmentVariables();
-        }
-        catch (Exception ex) {
-            AnsiConsole.WriteException(ex, ExceptionFormats.ShortenEverything);
-            Console.ReadLine();
-            Environment.Exit(0);
-        }
+        AnsiConsole.MarkupLine(":check_mark_button: [green]Installation succeeded.[/]");
+        Console.ReadLine();
+        Environment.Exit(0);
     }
 
     private static void ShowPreChecks() => AnsiConsole.Status()
@@ -104,7 +98,7 @@ internal class Program {
             using FileStream file = new(temp_file_path, FileMode.Create, FileAccess.Write, FileShare.None);
             await client.DownloadDataAsync(url, file, progress);
         });
-    private static void Unpack() {
+    private static void UnpackAndClean() {
         AnsiConsole.Status()
             .Spinner(Spinner.Known.Dots2)
             .SpinnerStyle(Style.Plain)
@@ -130,7 +124,13 @@ internal class Program {
                     int i = 1;
                     foreach (ZipArchiveEntry entry in archive.Entries) {
                         ctx.Status($"Extracting {entry.Name} {i}/{archive.Entries.Count}");
-                        entry.ExtractToFile(Path.Combine(INSTALLATION_DIRECTORY, entry.Name));
+                        string full_path = Path.Combine(INSTALLATION_DIRECTORY, entry.FullName);
+                        string directory = Path.GetDirectoryName(full_path) ?? INSTALLATION_DIRECTORY;
+                        if (!Directory.Exists(directory)) {
+                            Directory.CreateDirectory(directory);
+                        }
+
+                        entry.ExtractToFile(full_path, true);
                         i++;
                     }
 
@@ -142,18 +142,30 @@ internal class Program {
                     Console.ReadLine();
                     Environment.Exit(0);
                 }
+
+                try {
+                    ctx.Status("Setting Environment Variable");
+                    string? value = Environment.GetEnvironmentVariable("Path", EnvironmentVariableTarget.User);
+                    if (!string.IsNullOrEmpty(value) && !value.Contains(INSTALLATION_DIRECTORY)) {
+                        Environment.SetEnvironmentVariable("Path", string.Concat(value, $";{INSTALLATION_DIRECTORY}"), EnvironmentVariableTarget.User);
+                        AnsiConsole.MarkupLine(":check_mark_button: [green]Environment Variables set.[/]");
+                    }
+                }
+                catch (Exception ex) {
+                    AnsiConsole.MarkupLine(":cross_mark: [red]Could not set the environment variables.[/]");
+                    AnsiConsole.WriteException(ex, ExceptionFormats.ShortenEverything);
+                }
+
+                try {
+                    ctx.Status("Cleaning up");
+                    File.Delete(temp_file_path);
+                    AnsiConsole.MarkupLine(":check_mark_button: [green]Temp files removed.[/]");
+                }
+                catch (Exception ex) {
+                    AnsiConsole.MarkupLine(":cross_mark: [red]Could remove temp files.[/]");
+                    AnsiConsole.WriteException(ex, ExceptionFormats.ShortenEverything);
+                }
             });
-    }
-    private static void SetEnvironmentVariables() {
-        try { 
-            string value = Environment.GetEnvironmentVariable("Path");
-            Environment.SetEnvironmentVariable("Path", string.Concat(value, $";{INSTALLATION_DIRECTORY}"));
-            AnsiConsole.MarkupLine(":check_mark_button: [green]Environment Variables set.[/]");
-        }
-        catch (Exception ex) {
-            AnsiConsole.MarkupLine(":cross_mark: [red]Could not set the environment variables.[/]");
-            AnsiConsole.WriteException(ex, ExceptionFormats.ShortenEverything);
-        }
     }
 }
 
@@ -165,9 +177,8 @@ internal static class Utility {
     }
     public static bool HasNetworkConnectivity() => System.Net.NetworkInformation.NetworkInterface.GetIsNetworkAvailable();
     public static bool IsAdministrator() {
-        using (WindowsIdentity identity = WindowsIdentity.GetCurrent()) {
-            WindowsPrincipal principal = new(identity);
-            return principal.IsInRole(WindowsBuiltInRole.Administrator);
-        }
+        using WindowsIdentity identity = WindowsIdentity.GetCurrent();
+        WindowsPrincipal principal = new(identity);
+        return principal.IsInRole(WindowsBuiltInRole.Administrator);
     }
 }
