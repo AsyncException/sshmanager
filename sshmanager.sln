@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.10.34607.79
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "sshmanager", "sshmanager\sshmanager.csproj", "{997B1D4A-1B76-4D7B-A49B-DAB034ED02D4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Installer", "Installer\Installer.csproj", "{509CEBC2-15CD-4318-A440-D9373B500464}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{997B1D4A-1B76-4D7B-A49B-DAB034ED02D4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{997B1D4A-1B76-4D7B-A49B-DAB034ED02D4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{997B1D4A-1B76-4D7B-A49B-DAB034ED02D4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{997B1D4A-1B76-4D7B-A49B-DAB034ED02D4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{509CEBC2-15CD-4318-A440-D9373B500464}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{509CEBC2-15CD-4318-A440-D9373B500464}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{509CEBC2-15CD-4318-A440-D9373B500464}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{509CEBC2-15CD-4318-A440-D9373B500464}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {AC0BBB46-6CBB-4613-AB59-7E20C46E3983}
+	EndGlobalSection
+EndGlobal
