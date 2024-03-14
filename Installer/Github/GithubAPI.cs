@@ -10,7 +10,7 @@ public class GithubAPI : IDisposable
 
     public async Task<Release> GetLatestRelease()
     {
-        const string url = "/repos/AsyncException/Steam-Shortcut-Generator/releases/latest";
+        const string url = "/repos/AsyncException/sshmanager/releases/latest";
         Release? release = await http_client.GetFromJsonAsync<Release>(url);
 
         if(release is null) {
