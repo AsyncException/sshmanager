@@ -1,8 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Spectre.Console;
 using sshmanager.Models;
-using System.Diagnostics;
-using System.Text;
+using sshmanager.SSHClients;
 using TextCopy;
 
 namespace sshmanager;
@@ -36,7 +35,7 @@ public static class MenuManager
                     PresentServer(context, response.Value);
                     break;
                 default:
-                    AnsiConsole.WriteException(new Exception("Invalid option: report this issue on github"));
+                    AnsiConsole.WriteException(new Exception("Invalid option: report this issue on github"), ExceptionFormats.ShortenEverything);
                     Environment.Exit(0);
                     break;
             }
@@ -72,7 +71,7 @@ public static class MenuManager
                     PresentUser(context, server, response.Value);
                     break;
                 default:
-                    AnsiConsole.WriteException(new Exception("Invalid option: report this issue on github"));
+                    AnsiConsole.WriteException(new Exception("Invalid option: report this issue on github"), ExceptionFormats.ShortenEverything);
                     Environment.Exit(0);
                     break;
             }
@@ -87,7 +86,7 @@ public static class MenuManager
 
             switch (response) {
                 case Constants.CONNECT:
-                    StartSSHSession(server.Name, user.Username);
+                    ISSHClient.FromConfig(Configuration).StartSession(server, user);
                     break;
                 case Constants.COPY_PASSWORD:
                     ClipboardService.SetText(user.Password);
@@ -102,72 +101,5 @@ public static class MenuManager
         }
     }
 
-    private static void StartSSHSession(string server, string user) {
-        string start_process = $"Powershell Start-Process -NoNewWindow -FilePath ssh -ArgumentList {user}@{server}";
-        //$"--window 0 split-pane --size 0.8 --title {server} --suppressApplicationTitle -p \"Powershell\" -d . {start_process}",
-        Process ssh_process = new() {
-            StartInfo = new ProcessStartInfo() {
-                FileName = "wt",
-                Arguments = $"{GenerateArugments(server, user)}{start_process}",
-                RedirectStandardInput = false,
-                RedirectStandardOutput = false,
-                UseShellExecute = true,
-                CreateNoWindow = false
-            }
-        };
-
-        try {
-            ssh_process.Start();
-        }
-        catch (Exception ex) {
-            Console.WriteLine($"Error starting SSH process: {ex.Message}");
-        }
-    }
-
-    private static string GenerateArugments(string server, string user) {
-        IConfigurationSection section = Configuration.GetRequiredSection("TerminalSettings");
-
-        (string size, string orientation) = (string.Empty, string.Empty);
-        string window = section["Window"] ?? "0";
-        string title = section["Title"] ?? "{server}";
-        string profile = section["Profile"] ?? "Powershell";
-        bool suppress_title = bool.Parse(section["SupressApplicationTitle"] ?? "False");
-        bool split = bool.Parse(section["Split:Enable"] ?? "False");
-        if (split) {
-            size = section["Split:Size"] ?? "0.5";
-            orientation = section["Split:Orientation"] ?? "V";
-        }
-
-        StringBuilder builder = new();
-        builder.Append("--window ").Append(window);
-        if (split) {
-            builder.Append(" split-pane");
-            builder.Append(" --size ").Append(size);
-            builder.Append(" -").Append(orientation);
-        }
-
-        builder.Append(" --title ").Append(title.InjectVariables(server, user));
-
-        if(suppress_title) {
-            builder.Append(" --suppressApplicationTitle");
-        }
-
-        builder.Append(" -p \"").Append(profile).Append('"');
-        builder.Append(" -d . ");
-
-        return builder.ToString();
-    }
-
-    private static string InjectVariables(this string input, string server, string user) {
-        Dictionary<string, string> replace_pairs = new() {
-            {"{server}", server},
-            {"{user}", user}
-        };
-
-        foreach(KeyValuePair<string, string> replace in replace_pairs) {
-            input = input.Replace(replace.Key, replace.Value);
-        }
-
-        return input;
-    }
+    
 }
