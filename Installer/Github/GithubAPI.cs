@@ -6,7 +6,7 @@ namespace Installer.Github;
 
 public class GithubAPI : IDisposable
 {
-    private readonly HttpClient http_client = new() { BaseAddress = new Uri("https://api.github.com") };
+    private readonly HttpClient http_client = new();
     public GithubAPI() { http_client.DefaultRequestHeaders.Add("User-Agent", "sshmanager_installer"); }
 
     public async Task<Release> GetLatestRelease()

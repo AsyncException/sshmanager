@@ -20,6 +20,7 @@ internal class Program {
         try {
             Release release = await github_api.GetLatestRelease();
             url = GithubAPI.GetUrl(release);
+            AnsiConsole.MarkupLine($"Downloading version {release.TagName}");
         }
         catch (Exception ex) {
             AnsiConsole.WriteException(ex, ExceptionFormats.ShortenEverything);
