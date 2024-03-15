@@ -10,7 +10,8 @@ This is a simple SSH manager program designed to make it easier to connect to mu
 
 ## Warning
 **Important Note**: The passwords provided for server authentication are currently stored in plain text format in the database. Therefore, it's crucial not to reuse passwords that are used within this application for other purposes. Users are advised to exercise caution when using this feature and consider the security implications of storing passwords in plain text.
-**Note**:If you have a good way of storing reversable passwords create a pull request or let me know.
+
+**Note**: If you have a good way of storing reversable passwords create a pull request or let me know.
 
 ## Usage
 To use the SSH manager:
