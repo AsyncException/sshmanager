@@ -108,8 +108,28 @@ internal class Program {
                         Directory.CreateDirectory(INSTALLATION_DIRECTORY);
                         AnsiConsole.MarkupLine(":check_mark_button: [green]Installation folder created.[/]");
                     }
-                    catch (Exception ex){
+                    catch (Exception ex) {
                         AnsiConsole.MarkupLine(":cross_mark: [red]Could not create installation directory.[/]");
+                        AnsiConsole.WriteException(ex, ExceptionFormats.ShortenEverything);
+                        Console.ReadLine();
+                        Environment.Exit(0);
+                    }
+                }
+                else {
+                    try {
+                        DirectoryInfo directory = new(INSTALLATION_DIRECTORY);
+
+                        foreach (FileInfo file in directory.GetFiles()) {
+                            file.Delete();
+                        }
+                        foreach (DirectoryInfo dir in directory.GetDirectories()) {
+                            dir.Delete(true);
+                        }
+
+                        AnsiConsole.MarkupLine(":check_mark_button: [green]Cleaned up old files.[/]");
+                    }
+                    catch (Exception ex) {
+                        AnsiConsole.MarkupLine(":cross_mark: [red]Could not remove old files.[/]");
                         AnsiConsole.WriteException(ex, ExceptionFormats.ShortenEverything);
                         Console.ReadLine();
                         Environment.Exit(0);
