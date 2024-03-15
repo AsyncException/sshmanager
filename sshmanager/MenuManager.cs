@@ -13,27 +13,24 @@ public static class MenuManager
         while (true) {
             AnsiConsole.Clear();
             List<Server> servers = context.Servers.ToList();
-            string response = AnsiConsole.Prompt(new SelectionPrompt<string>().AddChoices([.. servers.Select(e => e.Name), "----------", "Add Server", "Exit"]));
+            string response = AnsiConsole.Prompt(new SelectionPrompt<string>().AddChoices([.. servers.Select(e => e.Name).OrderBy(e => e), "----------", "Add Server", "Exit"]));
 
-            if(response == "----------") {
-                //Ignore spacer
-                continue;
+            switch (response) {
+                case "----------":
+                    continue;
+                case "Add Server":
+                    string name = AnsiConsole.Ask<string>("Enter server ip or hostname:\n");
+                    context.Servers.Add(new() { Name = name });
+                    context.SaveChanges();
+                    continue;
+                case "Exit":
+                    Environment.Exit(0);
+                    break;
+                default:
+                    PresentServer(context, servers.First(e => e.Name == response));
+                    break;
             }
-
-            if(response == "Add Server") {
-                string name = AnsiConsole.Ask<string>("Enter server ip or hostname:\n");
-                context.Servers.Add(new() { Name = name });
-                context.SaveChanges();
-                continue;
-            }
-
-            if(response == "Exit") {
-                Environment.Exit(0);
-            }
-
-            PresentServer(context, servers.First(e => e.Name == response));
         }
-
     }
 
     private static void PresentServer(DatabaseContext context, Server server) {
@@ -41,7 +38,7 @@ public static class MenuManager
             AnsiConsole.Clear();
             string response = AnsiConsole.Prompt(new SelectionPrompt<string>()
                 .Title(server.Name)
-                .AddChoices([.. context.Users.Where(e => e.Server == server).Select(e => e.Username), "----------", "Add user", "Delete Server", "Return"]));
+                .AddChoices([.. context.Users.Where(e => e.Server == server).Select(e => e.Username).OrderBy(e => e), "----------", "Add user", "Delete Server", "Return"]));
 
             switch (response) {
                 case "----------":
