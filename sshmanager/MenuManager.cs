@@ -18,27 +18,29 @@ public static class MenuManager
             Promptable<Server> response = AnsiConsole.Prompt(new SelectionPrompt<Promptable<Server>>().AddChoices(
                 [
                     .. servers.OrderBy(e => e.Name).Select(e => new Promptable<Server>(e)),
-                    new("----------"),
-                    new("Add Server"),
-                    new("Exit")
+                    new(Constants.SEPERATOR),
+                    new(Constants.ADD_SERVER),
+                    new(Constants.EXIT)
                 ]));
 
             switch (response) {
-                case { IsOptions: true, OptionValue: "----------" }:
+                case { IsOptions: true, OptionValue: Constants.SEPERATOR }:
                     continue;
-                case { IsOptions: true, OptionValue: "Add server" }:
+                case { IsOptions: true, OptionValue: Constants.ADD_SERVER }:
                     string name = AnsiConsole.Ask<string>("Enter server ip or hostname:\n");
                     context.Servers.Add(new() { Name = name });
                     context.SaveChanges();
                     continue;
-                case { IsOptions: true, OptionValue: "Exit" }:
+                case { IsOptions: true, OptionValue: Constants.EXIT }:
                     Environment.Exit(0);
                     break;
                 case { IsOptions: false }:
                     PresentServer(context, response.Value);
                     break;
                 default:
-                    throw new Exception("Invalid option: report this issue on github");
+                    AnsiConsole.WriteException(new Exception("Invalid option: report this issue on github"));
+                    Environment.Exit(0);
+                    break;
             }
         }
     }
@@ -51,32 +53,34 @@ public static class MenuManager
                 .AddChoices(
                 [
                     .. context.Users.Where(e => e.Server == server).OrderBy(e => e.Username).Select(e => new Promptable<User>(e)),
-                    new("----------"),
-                    new("Add user"),
-                    new("Delete Server"),
-                    new("Return")
+                    new(Constants.SEPERATOR),
+                    new(Constants.ADD_SERVER),
+                    new(Constants.DELETE_SERVER),
+                    new(Constants.RETURN)
                 ]));
 
             switch (response) {
-                case { IsOptions: true, OptionValue: "----------" }:
+                case { IsOptions: true, OptionValue: Constants.SEPERATOR }:
                     break;
-                case { IsOptions: true, OptionValue: "Add user" }:
+                case { IsOptions: true, OptionValue: Constants.ADD_SERVER }:
                     string name = AnsiConsole.Ask<string>("Enter username");
                     string password = AnsiConsole.Prompt(new TextPrompt<string>("Enter password for this user").Secret());
                     context.Users.Add(new() { Username = name, Password = password, Server = server });
                     context.SaveChanges();
                     break;
-                case { IsOptions: true, OptionValue: "Delete Server" }:
+                case { IsOptions: true, OptionValue: Constants.DELETE_SERVER }:
                     context.Servers.Remove(server);
                     context.SaveChanges();
                     return;
-                case { IsOptions: true, OptionValue: "Return" }:
+                case { IsOptions: true, OptionValue: Constants.RETURN }:
                     return;
                 case { IsOptions: false }:
                     PresentUser(context, server, response.Value);
                     break;
                 default:
-                    throw new Exception("Invalid option: report this issue on github");
+                    AnsiConsole.WriteException(new Exception("Invalid option: report this issue on github"));
+                    Environment.Exit(0);
+                    break;
             }
         }
     }
@@ -84,20 +88,26 @@ public static class MenuManager
     private static void PresentUser(DatabaseContext context, Server server, User user) {
         while (true) {
             AnsiConsole.Clear();
-            string response = AnsiConsole.Prompt(new SelectionPrompt<string>().Title($"{user.Username}@{server.Name}").AddChoices(["Connect", "Copy password", "Delete user", "Return"]));
+            string response = AnsiConsole.Prompt(new SelectionPrompt<string>().Title($"{user.Username}@{server.Name}").AddChoices(
+                [
+                    Constants.CONNECT,
+                    Constants.COPY_PASSWORD,
+                    Constants.DELETE_USER,
+                    Constants.RETURN
+                ]));
 
             switch (response) {
-                case "Connect":
+                case Constants.CONNECT:
                     StartSSHSession(server.Name, user.Username);
                     break;
-                case "Copy password":
+                case Constants.COPY_PASSWORD:
                     ClipboardService.SetText(user.Password);
                     break;
-                case "Delete user":
+                case Constants.DELETE_USER:
                     context.Users.Remove(user);
                     context.SaveChanges();
                     return;
-                case "Return":
+                case Constants.RETURN:
                     return;
             }
         }
