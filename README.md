@@ -14,15 +14,6 @@ This is a simple SSH manager program designed to make it easier to connect to mu
 ## Usage
 To use the SSH manager:
 
-1. Clone this repository to your local machine.
-2. Install any required dependencies.
-3. Run the program.
-4. Use the menu options to save servers and user credentials.
-5. Connect to saved servers with ease using the provided credentials.
-
-## Usage
-To use the SSH manager:
-
 1. Run the installer.exe from the latest release to install the latest version of the application.
 2. Once the installation is complete, access the tool by opening a terminal or command prompt.
 3. Type 'sshmanager' in the terminal or command prompt to launch the SSH manager.
