@@ -13,22 +13,32 @@ public static class MenuManager
         while (true) {
             AnsiConsole.Clear();
             List<Server> servers = context.Servers.ToList();
-            string response = AnsiConsole.Prompt(new SelectionPrompt<string>().AddChoices([.. servers.Select(e => e.Name).OrderBy(e => e), "----------", "Add Server", "Exit"]));
+
+
+            Promptable<Server> response = AnsiConsole.Prompt(new SelectionPrompt<Promptable<Server>>().AddChoices(
+                [
+                    .. servers.OrderBy(e => e.Name).Select(e => new Promptable<Server>(e)),
+                    new("----------"),
+                    new("Add Server"),
+                    new("Exit")
+                ]));
 
             switch (response) {
-                case "----------":
+                case { IsOptions: true, OptionValue: "----------" }:
                     continue;
-                case "Add Server":
+                case { IsOptions: true, OptionValue: "Add server" }:
                     string name = AnsiConsole.Ask<string>("Enter server ip or hostname:\n");
                     context.Servers.Add(new() { Name = name });
                     context.SaveChanges();
                     continue;
-                case "Exit":
+                case { IsOptions: true, OptionValue: "Exit" }:
                     Environment.Exit(0);
                     break;
-                default:
-                    PresentServer(context, servers.First(e => e.Name == response));
+                case { IsOptions: false }:
+                    PresentServer(context, response.Value);
                     break;
+                default:
+                    throw new Exception("Invalid option: report this issue on github");
             }
         }
     }
@@ -36,28 +46,37 @@ public static class MenuManager
     private static void PresentServer(DatabaseContext context, Server server) {
         while (true) {
             AnsiConsole.Clear();
-            string response = AnsiConsole.Prompt(new SelectionPrompt<string>()
+            Promptable<User> response = AnsiConsole.Prompt(new SelectionPrompt<Promptable<User>>()
                 .Title(server.Name)
-                .AddChoices([.. context.Users.Where(e => e.Server == server).Select(e => e.Username).OrderBy(e => e), "----------", "Add user", "Delete Server", "Return"]));
+                .AddChoices(
+                [
+                    .. context.Users.Where(e => e.Server == server).OrderBy(e => e.Username).Select(e => new Promptable<User>(e)),
+                    new("----------"),
+                    new("Add user"),
+                    new("Delete Server"),
+                    new("Return")
+                ]));
 
             switch (response) {
-                case "----------":
+                case { IsOptions: true, OptionValue: "----------" }:
                     break;
-                case "Add user":
+                case { IsOptions: true, OptionValue: "Add user" }:
                     string name = AnsiConsole.Ask<string>("Enter username");
                     string password = AnsiConsole.Prompt(new TextPrompt<string>("Enter password for this user").Secret());
                     context.Users.Add(new() { Username = name, Password = password, Server = server });
                     context.SaveChanges();
                     break;
-                case "Delete Server":
+                case { IsOptions: true, OptionValue: "Delete Server" }:
                     context.Servers.Remove(server);
                     context.SaveChanges();
                     return;
-                case "Return":
+                case { IsOptions: true, OptionValue: "Return" }:
                     return;
-                default:
-                    PresentUser(context, server, context.Users.First(e => e.Server == server && e.Username == response));
+                case { IsOptions: false }:
+                    PresentUser(context, server, response.Value);
                     break;
+                default:
+                    throw new Exception("Invalid option: report this issue on github");
             }
         }
     }
