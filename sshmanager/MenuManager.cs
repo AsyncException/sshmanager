@@ -59,7 +59,7 @@ public static class MenuManager
                 case "Return":
                     return;
                 default:
-                    PresentUser(context, server, context.Users.First(e => e.Username == response));
+                    PresentUser(context, server, context.Users.First(e => e.Server == server && e.Username == response));
                     break;
             }
         }
