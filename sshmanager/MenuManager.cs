@@ -15,13 +15,11 @@ public static class MenuManager
             List<Server> servers = context.Servers.ToList();
 
 
-            Promptable<Server> response = AnsiConsole.Prompt(new SelectionPrompt<Promptable<Server>>().AddChoices(
-                [
-                    .. servers.OrderBy(e => e.Name).Select(e => new Promptable<Server>(e)),
-                    new(Constants.SEPERATOR),
-                    new(Constants.ADD_SERVER),
-                    new(Constants.EXIT)
-                ]));
+            Promptable<Server> response = AnsiConsole.Prompt(new SelectionPrompt<Promptable<Server>>()
+                //Add servers to the list of options
+                .AddChoices(servers.OrderBy(e => e.Name).Select(e => new Promptable<Server>(e)))
+                //Add user choices to the end of the list
+                .AddChoices([ new(Constants.SEPERATOR), new(Constants.ADD_SERVER), new(Constants.EXIT)]));
 
             switch (response) {
                 case { IsOptions: true, OptionValue: Constants.SEPERATOR }:
@@ -50,14 +48,10 @@ public static class MenuManager
             AnsiConsole.Clear();
             Promptable<User> response = AnsiConsole.Prompt(new SelectionPrompt<Promptable<User>>()
                 .Title(server.Name)
-                .AddChoices(
-                [
-                    .. context.Users.Where(e => e.Server == server).OrderBy(e => e.Username).Select(e => new Promptable<User>(e)),
-                    new(Constants.SEPERATOR),
-                    new(Constants.ADD_SERVER),
-                    new(Constants.DELETE_SERVER),
-                    new(Constants.RETURN)
-                ]));
+                //Add the list of users to the list
+                .AddChoices(context.Users.Where(e => e.Server == server).OrderBy(e => e.Username).Select(e => new Promptable<User>(e)))
+                //Add user choices to the end of the list
+                .AddChoices([ new(Constants.SEPERATOR), new(Constants.ADD_SERVER), new(Constants.DELETE_SERVER), new(Constants.RETURN) ]));
 
             switch (response) {
                 case { IsOptions: true, OptionValue: Constants.SEPERATOR }:
@@ -88,13 +82,8 @@ public static class MenuManager
     private static void PresentUser(DatabaseContext context, Server server, User user) {
         while (true) {
             AnsiConsole.Clear();
-            string response = AnsiConsole.Prompt(new SelectionPrompt<string>().Title($"{user.Username}@{server.Name}").AddChoices(
-                [
-                    Constants.CONNECT,
-                    Constants.COPY_PASSWORD,
-                    Constants.DELETE_USER,
-                    Constants.RETURN
-                ]));
+            string response = AnsiConsole.Prompt(new SelectionPrompt<string>().Title($"{user.Username}@{server.Name}")
+                .AddChoices([Constants.CONNECT, Constants.COPY_PASSWORD, Constants.DELETE_USER, Constants.RETURN]));
 
             switch (response) {
                 case Constants.CONNECT:
