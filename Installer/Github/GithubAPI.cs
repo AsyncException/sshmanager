@@ -1,6 +1,7 @@
 ﻿using Installer.Github.Models;
 using Spectre.Console;
 using System.Net.Http.Json;
+using System.Text.Json;
 
 namespace Installer.Github;
 
@@ -12,7 +13,10 @@ public class GithubAPI : IDisposable
     public async Task<Release> GetLatestRelease()
     {
         const string url = "https://api.github.com/repos/AsyncException/sshmanager/releases";
-        Release[]? releases = await http_client.GetFromJsonAsync<Release[]>(url);
+        HttpResponseMessage response = await http_client.GetAsync(url);
+        string content = await response.Content.ReadAsStringAsync();
+
+        List<Release>? releases = JsonSerializer.Deserialize(content, ReleasesJsonContext.Default.ListRelease);
 
         if (releases is null) {
             AnsiConsole.WriteException(new Exception("Unable to get the latest release from github"), ExceptionFormats.ShortenEverything);
