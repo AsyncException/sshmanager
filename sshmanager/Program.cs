@@ -7,5 +7,6 @@ IConfiguration config = new ConfigurationBuilder()
 
 DatabaseContext context = new();
 context.Database.EnsureCreated();
-MenuManager.Configuration = config;
-MenuManager.PresentServerList(context);
+
+MenuProvider provider = new(context, config);
+provider.MainMenu.ShowMenu();

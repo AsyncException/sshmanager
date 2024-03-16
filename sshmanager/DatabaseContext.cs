@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using sshmanager.CompiledModels;
 using sshmanager.Models;
 
 namespace sshmanager;
@@ -15,6 +16,11 @@ public class DatabaseContext : DbContext
             Directory.CreateDirectory(path);
         }
 
-        options_builder.UseSqlite($"Data Source={Path.Combine(path, "Database.db")}");
+        options_builder
+            .EnableSensitiveDataLogging()
+            .UseModel(DatabaseContextModel.Instance)
+            .UseSqlite($"Data Source={Path.Combine(path, "Database.db")}");
     }
 }
+
+//To update the Compiled state run: dotnet ef dbcontext optimize
