@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
+using sshmanager.Database;
 using sshmanager.Menus;
 
 namespace sshmanager;
