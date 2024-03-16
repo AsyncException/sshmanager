@@ -14,9 +14,9 @@ public class ArgumentHandler(DatabaseContext context)
     private readonly string path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "sshmanager");
 
     public async Task<ReturnType> Handle(string[] args) => args switch {
+        { Length: 0 } => ReturnType.Break,
         ["--initialize"] => await Initialize(),
         ["--Initialize"] => await Initialize(),
-        { Length: 0 } => ReturnType.Break,
         [..] => InvalidOption(),
     };
 
