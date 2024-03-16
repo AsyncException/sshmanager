@@ -1,6 +1,7 @@
 ﻿using Installer.Github;
 using Installer.Github.Models;
 using Spectre.Console;
+using System.Diagnostics;
 using System.IO.Compression;
 using System.Security.Principal;
 using System.Text;
@@ -185,6 +186,33 @@ internal class Program {
                 catch (Exception ex) {
                     AnsiConsole.MarkupLine(":cross_mark: [red]Could remove temp files.[/]");
                     AnsiConsole.WriteException(ex, ExceptionFormats.ShortenEverything);
+                }
+
+                try {
+                    ctx.Status("Creating Database");
+                    Process ssh_process = new() {
+                        StartInfo = new ProcessStartInfo() {
+                            FileName = Path.Combine(INSTALLATION_DIRECTORY, "sshmanager.exe"),
+                            Arguments = $"--initialize",
+                            RedirectStandardInput = false,
+                            RedirectStandardOutput = false,
+                            UseShellExecute = true,
+                            CreateNoWindow = false
+                        }
+                    };
+
+                    try {
+                        ssh_process.Start();
+                        ssh_process.WaitForExit();
+                        AnsiConsole.MarkupLine(":check_mark_button: [green]Database created.[/]");
+                    }
+                    catch (Exception ex) {
+                        AnsiConsole.MarkupLine(":cross_mark: [red]Error creating database. Manually run sshmanager.exe --initialize[/]");
+                        AnsiConsole.WriteException(ex, ExceptionFormats.ShortenEverything);
+                    }
+                }
+                catch {
+
                 }
             });
     }
