@@ -4,8 +4,23 @@ namespace sshmanager.Database;
 
 public class Database(DbConnection connection) {
     public async Task BuildDatabase() {
-        await BuildServerTable();
-        await BuildUserTable();
+        if(await TableExists("Servers")) {
+            await BuildServerTable();
+        }
+
+        if(await TableExists("Users")) {
+            await BuildUserTable();
+        }
+    }
+
+    private async Task<bool> TableExists(string table_name) {
+        await connection.OpenAsync();
+
+        using DbCommand command = connection.CreateCommand();
+        command.CommandText = $"SELECT name FROM sqlite_master WHERE type='table' AND name='{table_name}';";
+        
+        using DbDataReader reader = await command.ExecuteReaderAsync();
+        return reader.HasRows;
     }
 
     public async Task BuildServerTable() {
