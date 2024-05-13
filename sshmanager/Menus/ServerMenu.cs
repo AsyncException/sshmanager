@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Options;
 using Spectre.Console;
 using sshmanager.Database;
 using sshmanager.Models;

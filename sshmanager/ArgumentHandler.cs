@@ -16,7 +16,6 @@ public class ArgumentHandler(DatabaseContext context)
     public async Task<ReturnType> Handle(string[] args) => args switch {
         { Length: 0 } => ReturnType.Break,
         ["--initialize"] => await Initialize(),
-        ["--Initialize"] => await Initialize(),
         [..] => InvalidOption(),
     };
 
