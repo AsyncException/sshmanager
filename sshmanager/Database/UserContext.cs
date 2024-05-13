@@ -34,6 +34,32 @@ public class UserContext(DbConnection connection)
         return users;
     }
 
+    public async Task<IEnumerable<User>> GetLike(Server server, string user) {
+        await connection.OpenAsync();
+
+        using DbCommand command = connection.CreateCommand();
+        command.CommandText = "select * from Users WHERE ServerId=@Id AND Username LIKE @searchquery";
+        command.Parameters.Add(new SqliteParameter("@Id", server.Id));
+        command.Parameters.Add(new SqliteParameter("@searchquery", $"%{user}%"));
+
+        using DbDataReader reader = await command.ExecuteReaderAsync();
+
+        if (!reader.HasRows)
+            return [];
+
+        List<User> users = [];
+        while (await reader.ReadAsync()) {
+            users.Add(new User() {
+                Id = reader.GetGuid(0),
+                Server = new() { Id = reader.GetGuid(1) },
+                Username = reader.GetString(2),
+                Password = reader.GetString(3)
+            });
+        }
+
+        return users;
+    }
+
     public async Task<bool> Add(User user)
     {
         await connection.OpenAsync();

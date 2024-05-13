@@ -18,4 +18,7 @@ public class MenuProvider(DatabaseContext context, IConfiguration configuration)
     private UserMenu? user_menu;
     public UserMenu UserMenu => user_menu ??= new UserMenu(this, context, configuration);
 
+    private PointerMenu? pointer_menu;
+    public PointerMenu PointerMenu => pointer_menu ??= new PointerMenu(this, context, configuration);
+
 }

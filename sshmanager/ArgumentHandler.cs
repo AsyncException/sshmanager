@@ -16,7 +16,7 @@ public class ArgumentHandler(DatabaseContext context)
     public async Task<ReturnType> Handle(string[] args) => args switch {
         { Length: 0 } => ReturnType.Break,
         ["--initialize"] => await Initialize(),
-        [..] => InvalidOption(),
+        { Length: > 0 } => ReturnType.Other,
     };
 
     private async Task<ReturnType> Initialize() {
@@ -27,10 +27,20 @@ public class ArgumentHandler(DatabaseContext context)
         return ReturnType.Return;
     }
 
-    private static ReturnType InvalidOption() {
-        AnsiConsole.WriteException(new Exception("Invalid argument: report this issue on github"), ExceptionFormats.ShortenEverything);
-        Environment.Exit(0);
+    public DestinationPointer GeneratePointer(string[] args) => args switch {
+        { Length: 0 or > 2 } => throw new Exception(),
+        { Length: 1 } => new DestinationPointer(args[0], null),
+        { Length: 2 } => new DestinationPointer(args[0], args[1])
+    };
+}
 
-        return ReturnType.Return;
+public record struct DestinationPointer(string Server, string? User)
+{
+    public async readonly Task<Server> GetClosestServer(DatabaseContext context) {
+        return (await context.Servers.GetLike(Server)).FirstOrDefault() ?? throw new Exception("Invalid server option");
+    }
+
+    public async readonly Task<User> GetClosestUser(DatabaseContext context, Server server) {
+        return (await context.Users.GetLike(server, User!)).FirstOrDefault() ?? throw new Exception("Invalid user option");
     }
 }

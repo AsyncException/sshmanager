@@ -28,6 +28,29 @@ public class ServerContext(DbConnection connection)
         return servers;
     }
 
+    public async Task<IEnumerable<Server>> GetLike(string server) {
+        await connection.OpenAsync();
+
+        using DbCommand command = connection.CreateCommand();
+        command.CommandText = "SELECT Id, Name FROM Servers WHERE (Name LIKE @searchquery)";
+        command.Parameters.Add(new SqliteParameter("@searchquery", $"%{server}%"));
+
+        using DbDataReader reader = await command.ExecuteReaderAsync();
+        if (!reader.HasRows) {
+            return [];
+        }
+
+        List<Server> servers = [];
+        while (await reader.ReadAsync()) {
+            servers.Add(new Server() {
+                Id = reader.GetGuid(0),
+                Name = reader.GetString(1),
+            });
+        }
+
+        return servers;
+    }
+
     public async Task<bool> Add(Server server)
     {
         await connection.OpenAsync();

@@ -8,7 +8,8 @@ namespace sshmanager.Models;
 public enum ReturnType
 {
     Break,
-    Return
+    Return,
+    Other
 }
 
 public static class ReturnTypeExtensions {
