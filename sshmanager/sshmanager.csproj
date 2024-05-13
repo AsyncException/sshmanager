@@ -7,6 +7,8 @@
     <Nullable>enable</Nullable>
     <PublishAot>True</PublishAot>
     <PublishTrimmed>True</PublishTrimmed>
+    <Version>1.2.0</Version>
+    <VersionSuffix>alpha</VersionSuffix>
   </PropertyGroup>
 
   <ItemGroup>
