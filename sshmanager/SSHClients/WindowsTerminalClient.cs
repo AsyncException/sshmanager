@@ -6,11 +6,13 @@ using System.Text;
 
 namespace sshmanager.SSHClients;
 
-internal class WindowsTerminalClient(IConfiguration configuration) : ISSHClient {
+internal class WindowsTerminalClient(IConfiguration configuration) : ISSHClient
+{
     private readonly IConfiguration configuration = configuration;
 
     public void StartSession(Server server, User user) {
-        string start_process = $"Powershell Start-Process -NoNewWindow -FilePath ssh -ArgumentList {user.Username}@{server.Name}";
+        ConnectionDetails connection = ParseServer(server.Name);
+        string start_process = $"Powershell Start-Process -NoNewWindow -FilePath ssh -ArgumentList '{user.Username}@{connection.Server} -p {connection.Port}'";
         Process ssh_process = new() {
             StartInfo = new ProcessStartInfo() {
                 FileName = "wt",
@@ -29,6 +31,21 @@ internal class WindowsTerminalClient(IConfiguration configuration) : ISSHClient 
             AnsiConsole.MarkupLine("[red]Error starting SSH process[/]");
             AnsiConsole.WriteException(ex, ExceptionFormats.ShortenEverything);
         }
+    }
+
+    private ConnectionDetails ParseServer(ReadOnlySpan<char> server) {
+        Span<Range> ranges = stackalloc Range[2];
+        server.Split(ranges, ':');
+
+        if (server[ranges[1]].Length == 0) {
+            return new(server.ToString(), 22);
+        }
+
+        if (!int.TryParse(server[ranges[1]], out int port)) {
+            return new(server.ToString(), 22);
+        }
+
+        return new(server[ranges[0]].ToString(), port);
     }
 
     private string GenerateArugments(string server, string user) {
