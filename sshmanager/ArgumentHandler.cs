@@ -1,6 +1,7 @@
 ﻿using Spectre.Console;
 using sshmanager.Database;
 using sshmanager.Models;
+using sshmanager.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,13 +23,36 @@ public class ArgumentHandler
     };
 }
 
-public record struct DestinationPointer(string Server, string? User)
+public readonly struct DestinationPointer(string server, string? user)
 {
-    public async readonly Task<Server> GetClosestServer(DatabaseContext context) {
-        return (await context.Servers.GetLike(Server)).FirstOrDefault() ?? throw new Exception("Invalid server option");
+    private readonly string _server = server ?? string.Empty;
+    private readonly string _user = user ?? string.Empty;
+
+    public async Task<(Option<Server> server, Option<User> user)> GetClosest(DatabaseContext context) {
+        if (string.IsNullOrEmpty(_server)) {
+            return (Option.None, Option.None);
+        }
+
+        Option<Server> server = await GetClosestServer(context, _server);
+
+        if(!server.HasValue || string.IsNullOrEmpty(_user)) {
+            return (server, Option.None);
+        }
+
+        Option<User> user = await GetClosestUser(context, server.Value, _user);
+
+        return (server, user);
     }
 
-    public async readonly Task<User> GetClosestUser(DatabaseContext context, Server server) {
-        return (await context.Users.GetLike(server, User!)).FirstOrDefault() ?? throw new Exception("Invalid user option");
+    private static async Task<Server> GetClosestServer(DatabaseContext context, string serverName) {
+        IEnumerable<Server> servers = await context.Servers.GetLike(serverName);
+        Server? server = servers.FirstOrDefault();
+        return Option.FromNull(server);
+    }
+
+    private static async Task<User> GetClosestUser(DatabaseContext context, Server server, string userName) {
+        IEnumerable<User> users = await context.Users.GetLike(server, userName);
+        User? user = users.FirstOrDefault();
+        return Option.FromNull(user);
     }
 }
