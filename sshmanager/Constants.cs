@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace sshmanager;
+﻿namespace sshmanager;
 internal static class Constants
 {
     public const string SEPERATOR = "----------";
@@ -16,4 +10,5 @@ internal static class Constants
     public const string COPY_PASSWORD = "Copy password";
     public const string RETURN = "Return";
     public const string EXIT = "Exit";
+    public static string DATABASE_DIRECTORY = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "sshmanager");
 }
