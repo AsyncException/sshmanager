@@ -5,10 +5,20 @@ using sshmanager.Models;
 
 namespace sshmanager.Menus;
 
+/// <summary>
+/// The server menu that shows the content of the server
+/// </summary>
+/// <param name="menu_provider">The <see cref="sshmanager.MenuProvider"/> to use</param>
+/// <param name="context">The <see cref="DatabaseContext"/> to use</param>
+/// <param name="configuration">The app configuration</param>
 public class ServerMenu(MenuProvider menu_provider, DatabaseContext context, IConfiguration configuration) : BaseMenu(menu_provider, context, configuration)
 {
     private static readonly Promptable<User>[] options = [new(Constants.SEPERATOR), new(Constants.ADD_USER), new(Constants.DELETE_SERVER), new(Constants.RETURN)];
-    
+
+    /// <summary>
+    /// Writes the server menu to the console
+    /// </summary>
+    /// <returns>Type of action to perform to the caller</returns>
     public async ValueTask<ReturnType> ShowMenu(Server server)
     {
         while (true)

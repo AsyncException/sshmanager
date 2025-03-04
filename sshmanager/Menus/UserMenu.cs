@@ -7,9 +7,20 @@ using TextCopy;
 
 namespace sshmanager.Menus;
 
+/// <summary>
+/// The main menu which shows the options after selecting a user.
+/// </summary>
+/// <param name="menu_provider">The <see cref="sshmanager.MenuProvider"/> to use</param>
+/// <param name="context">The <see cref="DatabaseContext"/> to use</param>
+/// <param name="configuration">The app configuration</param>
 public class UserMenu(MenuProvider menu_provider, DatabaseContext context, IConfiguration configuration) : BaseMenu(menu_provider, context, configuration)
 {
     private static readonly string[] options = [Constants.CONNECT, Constants.COPY_PASSWORD, Constants.DELETE_USER, Constants.RETURN];
+
+    /// <summary>
+    /// Writes the user menu to the console
+    /// </summary>
+    /// <returns>Type of action to perform to the caller</returns>
     public async ValueTask<ReturnType> ShowMenu(Server server, User user)
     {
         while (true)
