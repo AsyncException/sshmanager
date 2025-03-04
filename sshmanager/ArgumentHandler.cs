@@ -11,13 +11,23 @@ using System.Threading.Tasks;
 namespace sshmanager;
 public class ArgumentHandler
 {
+    /// <summary>
+    /// Validates if there are any arguments or if its a normal start
+    /// </summary>
+    /// <param name="args">The app arguments</param>
+    /// <returns><see cref="ReturnType.Break"/> if there are no arguments else <see cref="ReturnType.Other"/></returns>
     public static ReturnType Handle(string[] args) => args switch {
         { Length: 0 } => ReturnType.Break,
         { Length: > 0 } => ReturnType.Other,
     };
 
-    public static DestinationPointer GeneratePointer(string[] args) => args switch {
-        { Length: 0 or > 2 } => throw new Exception(),
+    /// <summary>
+    /// Creates a pointer to a specific server and/ or user
+    /// </summary>
+    /// <param name="args">The app arguments</param>
+    /// <returns>A <see cref="DestinationPointer"/> to the correct server and/ or user or an <see cref="Option.None"/></returns>
+    public static Option<DestinationPointer> GeneratePointer(string[] args) => args switch {
+        { Length: 0 or > 2 } => Option.None,
         { Length: 1 } => new DestinationPointer(args[0], null),
         { Length: 2 } => new DestinationPointer(args[0], args[1])
     };
@@ -39,7 +49,7 @@ public readonly struct DestinationPointer(string server, string? user)
             return (server, Option.None);
         }
 
-        Option<User> user = await GetClosestUser(context, server.Value, _user);
+        Option<User> user = await GetClosestUser(context, server, _user);
 
         return (server, user);
     }

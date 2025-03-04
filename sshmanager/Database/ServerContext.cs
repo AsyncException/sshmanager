@@ -6,7 +6,11 @@ namespace sshmanager.Database;
 
 public class ServerContext(DbConnection connection)
 {
-    public async Task<IEnumerable<Server>> Get() {
+    /// <summary>
+    /// Get all the servers in the database.
+    /// </summary>
+    /// <returns>The list of games</returns>
+    public async Task<List<Server>> Get() {
         await connection.OpenAsync();
 
         using DbCommand command = connection.CreateCommand();
@@ -28,7 +32,12 @@ public class ServerContext(DbConnection connection)
         return servers;
     }
 
-    public async Task<IEnumerable<Server>> GetLike(string server) {
+    /// <summary>
+    /// Searches the database for servers with a name like <paramref name="server"/>
+    /// </summary>
+    /// <param name="server">The name to search for</param>
+    /// <returns>List of servers with a matching name</returns>
+    public async Task<List<Server>> GetLike(string server) {
         await connection.OpenAsync();
 
         using DbCommand command = connection.CreateCommand();
@@ -51,6 +60,11 @@ public class ServerContext(DbConnection connection)
         return servers;
     }
 
+    /// <summary>
+    /// Adds a server to the database
+    /// </summary>
+    /// <param name="server">The server to add</param>
+    /// <returns>A <see cref="bool"/> true if the action succeeded</returns>
     public async Task<bool> Add(Server server)
     {
         await connection.OpenAsync();
@@ -63,6 +77,11 @@ public class ServerContext(DbConnection connection)
         return await command.ExecuteNonQueryAsync() == 1;
     }
 
+    /// <summary>
+    /// Removes a server from the database
+    /// </summary>
+    /// <param name="server">The server to remove</param>
+    /// <returns>A <see cref="bool"/> true if the action succeeded</returns>
     public async Task<bool> Remove(Server server)
     {
         await connection.OpenAsync();
