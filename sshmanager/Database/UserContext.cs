@@ -6,7 +6,12 @@ namespace sshmanager.Database;
 
 public class UserContext(DbConnection connection)
 {
-    public async Task<IEnumerable<User>> Get(Server server)
+    /// <summary>
+    /// Gets the users for a specific server
+    /// </summary>
+    /// <param name="server">The server where the users are from</param>
+    /// <returns>The list of users</returns>
+    public async Task<List<User>> Get(Server server)
     {
         await connection.OpenAsync();
         
@@ -34,7 +39,13 @@ public class UserContext(DbConnection connection)
         return users;
     }
 
-    public async Task<IEnumerable<User>> GetLike(Server server, string user) {
+    /// <summary>
+    /// Gets the users where the name is alike <paramref name="user"/>
+    /// </summary>
+    /// <param name="server">The server to get the users from</param>
+    /// <param name="user">The name to search for</param>
+    /// <returns>The list of users</returns>
+    public async Task<List<User>> GetLike(Server server, string user) {
         await connection.OpenAsync();
 
         using DbCommand command = connection.CreateCommand();
@@ -60,6 +71,11 @@ public class UserContext(DbConnection connection)
         return users;
     }
 
+    /// <summary>
+    /// Add a user to the database
+    /// </summary>
+    /// <param name="user">The user to add</param>
+    /// <returns>A <see cref="bool"/> true if the action succeeded</returns>
     public async Task<bool> Add(User user)
     {
         await connection.OpenAsync();
@@ -74,6 +90,11 @@ public class UserContext(DbConnection connection)
         return await command.ExecuteNonQueryAsync() == 1;
     }
 
+    /// <summary>
+    /// Removes a user from the database
+    /// </summary>
+    /// <param name="user">The user to remove</param>
+    /// <returns>A <see cref="bool"/> true if the action succeeded</returns>
     public async Task<bool> Remove(User user)
     {
         await connection.OpenAsync();

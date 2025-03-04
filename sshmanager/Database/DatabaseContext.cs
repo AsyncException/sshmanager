@@ -1,15 +1,31 @@
 ﻿using System.Data.Common;
 
 namespace sshmanager.Database;
+
+/// <summary>
+/// Context of the Database. This includes interactions with database tables.
+/// </summary>
 public class DatabaseContext : IAsyncDisposable, IDisposable
 {
     private readonly DbConnection connection;
 
+    /// <summary>
+    /// Interactions with the Servers table.
+    /// </summary>
     public ServerContext Servers => new(connection);
+    
+    /// <summary>
+    /// Interactions with the Users table
+    /// </summary>
     public UserContext Users => new(connection);
 
     private DatabaseContext(DbConnection connection) => this.connection = connection;
 
+    /// <summary>
+    /// Creates a new context and checks if the database is correctly created
+    /// </summary>
+    /// <param name="connection"></param>
+    /// <returns>The created <see cref="DatabaseContext"/></returns>
     public static async Task<DatabaseContext> CreateContext(DbConnection connection) {
         DatabaseContext context = new(connection);
         await DatabaseBuilder.BuildDatabase(connection);

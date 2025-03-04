@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace sshmanager.Models;
 
-namespace sshmanager.Models;
+//A followup action to convey upwards a method chain
 public enum ReturnType
 {
     Break,
